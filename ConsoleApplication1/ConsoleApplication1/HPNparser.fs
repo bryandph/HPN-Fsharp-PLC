@@ -7,22 +7,22 @@ open Operators
 open FParsec
 open HPNtypes
 
-// FParsec helpers
+// FParsec Syntactic
 let ws = spaces
 let str s = pstring s .>> ws
 let char c = pchar c .>> ws
 
 // Parsing HPN numbers
 let h, hRef = createParserForwardedToRef()
-let pZero = ws >>. (stringReturn "0" Zero) .>> ws
 let pPow = between (char '[') (char ']') h |>> Pow
 let pSeqn = sepBy (pPow .>> ws) (char '+') |>> Seqn
+let pZero = ws >>. (stringReturn "0" Zero) .>> ws
 
 do hRef := choice [ pZero; pSeqn]
 
 // Parsing cmds
 let cmd, cmdRef = createParserForwardedToRef()
-let cmdList = sepBy1 cmd ws
+let cmdList = many (cmd .>> ws)
 let pCmd n = (tuple2 n (ws >>. str "base" >>. pint32))
 let pToHpn = pCmd pint32 |>> ToHPN
 let pToDec = pCmd h |>> ToDec
@@ -30,9 +30,17 @@ let pToDec = pCmd h |>> ToDec
 do cmdRef := choice [ pToHpn; pToDec ]
 
 // FParsec parser
-let hpn = cmdList .>> eof |>> Prog
+let hpn = ws >>. cmdList .>> ws .>> eof |>> Prog
 let parseHPNString str = run hpn str
+// UTF8 is the default, but it will detect UTF16 or UTF32 byte-order marks automatically
+let parseHPNFile fileName encoding =
+#if PCL_FPARSEC
+    runParserOnString json () fileName (System.IO.File.ReadAllText(fileName, System.Text.Encoding.UTF8))
+#else
+    runParserOnFile hpn () fileName System.Text.Encoding.UTF8
+#endif
 
+// Utilities to print and run output.
 // hpn2str calls seq2str
 let rec hpn2str (h : HPN) =
     match h with

@@ -5,11 +5,11 @@ open HPNparser
 [<EntryPoint>]
 let main(argv: string[]) = 
     if argv.Length <> 1 then
-            printf "usage: hpnconverter.exe <file>\n"
+            System.Console.WriteLine("usage: hpnconverter.exe <file>")
             exit 1
 
     let fileName = argv.[0]
-    let result = runParserOnFile hpn () fileName System.Text.Encoding.Default
+    let result = parseHPNFile fileName System.Text.Encoding.Default
 
     let myProg = 
         match result with
@@ -17,6 +17,9 @@ let main(argv: string[]) =
         | Failure (msg, e, _) -> System.Console.WriteLine(msg + "\n" + e.ToString())
 
     myProg
+
+    System.Console.WriteLine("Press Any Key To Exit...")
+    System.Console.ReadKey() |> ignore
     0
 
 
