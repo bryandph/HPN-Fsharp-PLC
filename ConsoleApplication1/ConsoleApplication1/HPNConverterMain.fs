@@ -1,6 +1,7 @@
 ﻿// This is the main program which, when compiled, will convert between HPN types and Decimal types.
 open FParsec
 open HPNparser
+open System.IO
 
 [<EntryPoint>]
 let main(argv: string[]) = 
@@ -9,7 +10,9 @@ let main(argv: string[]) =
             exit 1
 
     let fileName = argv.[0]
-    let result = parseHPNFile fileName System.Text.Encoding.Default
+    let result = 
+        if File.Exists(fileName) then parseHPNFile fileName System.Text.Encoding.Default
+        else invalidArg "File Name" "File not found"
 
     let myProg = 
         match result with

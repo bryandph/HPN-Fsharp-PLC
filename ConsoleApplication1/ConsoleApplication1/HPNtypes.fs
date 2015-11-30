@@ -5,6 +5,7 @@ open System.Text
 [<StructuredFormatDisplay("{StructuredFormatDisplay}")>]
 type Atom = 
     | Pow of HPN
+    | Zero
     member private t.StructuredFormatDisplay = 
         match t with
         | Pow h -> box ("[" + (sprintf "%A" h) + "]")
@@ -13,7 +14,7 @@ and HPN =
     | Zero
     member private t.StructuredFormatDisplay = 
         match t with
-        | Seqn l -> box ()
+        | Seqn l -> box l
         | Zero -> box "0"
 
 [<StructuredFormatDisplay("{StructuredFormatDisplay}")>]
